@@ -1,23 +1,43 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: production-people-api
-  namespace: default
+  name: mediawiki
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/Dameeyo/ArgoCD_GitOps.git
-    path: .
-    targetRevision: main
-    helm:
-      valueFiles:
-        - values_production.yml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: production
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
-    automated:
-      selfHeal: true
-      prune: true
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediawiki
+  template:
+    metadata:
+      labels:
+        app: mediawiki
+    spec:
+      containers:
+        - name: mediawiki
+          image: mediawiki:latest  # Das MediaWiki-Image von DockerHub
+          ports:
+            - containerPort: 80
+          env:
+            - name: MEDIAWIKI_DB_TYPE
+              value: "mysql"
+            - name: MEDIAWIKI_DB_HOST
+              value: "mysql"
+            - name: MEDIAWIKI_DB_NAME
+              value: "my_wiki"
+            - name: MEDIAWIKI_DB_USER
+              value: "root"
+            - name: MEDIAWIKI_DB_PASSWORD
+              value: "your_password_here"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediawiki
+spec:
+  selector:
+    app: mediawiki
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
