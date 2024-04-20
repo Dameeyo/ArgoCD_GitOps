@@ -1,1 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jira
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jira
+  template:
+    metadata:
+      labels:
+        app: jira
+    spec:
+      containers:
+        - name: jira
+          image: atlassian/jira-software:latest  # Das Jira Software-Image von DockerHub
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JIRA_DATABASE_URL
+              value: "jdbc:postgresql://jira-db:5432/jiradb"
+            - name: JIRA_DB_USER
+              value: "admin"
+            - name: JIRA_DB_PASSWORD
+              value: "admin"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jira
+spec:
+  selector:
+    app: jira
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
 
