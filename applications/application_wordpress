@@ -25,7 +25,7 @@ spec:
             - name: WORDPRESS_DB_USER
               value: "root"
             - name: WORDPRESS_DB_PASSWORD
-              value: "your_password_here"
+              value: "123"
 ---
 apiVersion: v1
 kind: Service
